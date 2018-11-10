@@ -87,8 +87,8 @@ target_link_libraries(${_target_name}
 # second, for the sdl2 libs, we need to know if we are 32 or 64 bit. 
 
 # first, the copy all bullshit i came to like 
-add_custom_command(TARGET ${_target_name}
-  POST_BUILD
+add_dependencies(${_target_name} ${_target_name}_datacopy)
+add_custom_target(${_target_name}_datacopy
   COMMAND ${CMAKE_COMMAND}
     -Dsrc_dir="${PROJECT_SOURCE_DIR}"
     -Ddst_dir="${CMAKE_BINARY_DIR}/buildpackage/"
