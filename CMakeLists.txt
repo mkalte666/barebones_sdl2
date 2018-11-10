@@ -24,6 +24,8 @@ set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 project(barebones_sdl2)
+set(_target_name barebones_sdl2)
+
 
 # some more debug/release defines because im paranoid 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -68,11 +70,11 @@ set(ALL_SOURCES
 )
 
 # more the usual. create executable, add libraries 
-add_executable(barebones_sdl2
+add_executable(${_target_name}
     ${ALL_SOURCES}
     )
 
-target_link_libraries(barebones_sdl2 
+target_link_libraries(${_target_name} 
     ${SDL2_LIBRARY} 
     ${SDL2MAIN_LIBRARY} 
     ${SDL2_TTF_LIBRARY}
@@ -85,11 +87,13 @@ target_link_libraries(barebones_sdl2
 # second, for the sdl2 libs, we need to know if we are 32 or 64 bit. 
 
 # first, the copy all bullshit i came to like 
-file(GLOB_RECURSE srcdir RELATIVE ${CMAKE_SOURCE_DIR} "*")
-foreach(f ${srcdir})
-    set(file_target ${CMAKE_BINARY_DIR}/buildpackage/${f})
-    configure_file(${f} ${file_target})
-endforeach(f)
+add_custom_command(TARGET ${_target_name}
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND}
+    -Dsrc_dir="${PROJECT_SOURCE_DIR}"
+    -Ddst_dir="${CMAKE_BINARY_DIR}/buildpackage/"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/update_directory.cmake"
+)
 
 # is there a better way? i dont know. found at http://www.saoe.net/blog/778/
 if (${CMAKE_SIZEOF_VOID_P} EQUAL "8")
@@ -99,19 +103,19 @@ else ()
 endif ()
 
 # copy sdl2 stuff. uncomment what you need
-add_custom_command(TARGET barebones_sdl2 POST_BUILD
+add_custom_command(TARGET ${_target_name} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${SDL2_PATH}/lib/${PROJECT_ARCHITECTURE}/"
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-add_custom_command(TARGET barebones_sdl2 POST_BUILD
+add_custom_command(TARGET ${_target_name} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${SDL2_TTF_PATH}/lib/${PROJECT_ARCHITECTURE}/"
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-#add_custom_command(TARGET barebones_sdl2 POST_BUILD
+#add_custom_command(TARGET ${_target_name} POST_BUILD
 #    COMMAND ${CMAKE_COMMAND} -E copy_directory
 #        "${SDL2_IMAGE_PATH}/lib/${PROJECT_ARCHITECTURE}/"
 #        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-#add_custom_command(TARGET barebones_sdl2 POST_BUILD
+#add_custom_command(TARGET ${_target_name} POST_BUILD
 #    COMMAND ${CMAKE_COMMAND} -E copy_directory
 #        "${SDL2_MIXER_PATH}/lib/${PROJECT_ARCHITECTURE}/"
 #        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
