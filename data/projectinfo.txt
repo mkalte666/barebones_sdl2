@@ -1,0 +1,2 @@
+This is a build of a barebone_sdl2 project
+This should be edited. Hit your programmer with an axe, maybe?
