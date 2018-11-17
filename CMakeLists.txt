@@ -102,6 +102,8 @@ else ()
     set (PROJECT_ARCHITECTURE "x86")
 endif ()
 
+if( WIN32 )
+
 # copy sdl2 stuff. uncomment what you need
 add_custom_command(TARGET ${_target_name} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -119,3 +121,5 @@ add_custom_command(TARGET ${_target_name} POST_BUILD
 #    COMMAND ${CMAKE_COMMAND} -E copy_directory
 #        "${SDL2_MIXER_PATH}/lib/${PROJECT_ARCHITECTURE}/"
 #        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+endif ( WIN32 )
