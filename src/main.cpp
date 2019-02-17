@@ -17,7 +17,6 @@
 */
 
 #include <SDL.h>
-#include <SDL_ttf.h>
 
 #include <iostream>
 
@@ -31,12 +30,6 @@ int main(int argc, char* argv[])
     if (rc < 0) {
         std::cerr << "Cannot Init SDL! " << SDL_GetError() << std::endl;
         exit(1);
-    }
-
-    rc = TTF_Init();
-    if (rc < 0) {
-        std::cerr << "Cannot init TTF!" << TTF_GetError() << std::endl;
-        exit(2);
     }
 
     // we are runnable. put in own scope so we run some destructors of stack objects before everything explodes
@@ -84,7 +77,6 @@ int main(int argc, char* argv[])
         SDL_DestroyWindow(window);
     }
 
-    TTF_Quit();
     SDL_Quit();
 
     return 0;

@@ -1,6 +1,6 @@
 #    CMakeLists.txt 
 #
-#    Copyright (C) 2018  Malte Kießling
+#    Copyright (C) 2018-2019  Malte Kießling
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package(SDL2 REQUIRED)
-find_package(SDL2_TTF REQUIRED)
+#find_package(SDL2_TTF REQUIRED)
 #find_package(SDL2_IMAGE REQUIRED)
 #find_package(SDL2_MIXER REQUIRED)
 
@@ -58,7 +58,7 @@ find_package(SDL2_TTF REQUIRED)
 include_directories(
     ${GLM_INCLUDE_DIR} 
     ${SDL2_INCLUDE_DIR} 
-    ${SDL2_TTF_INCLUDE_DIR} 
+    #${SDL2_TTF_INCLUDE_DIR} 
     #${SDL2_IMAGE_INCLUDE_DIR}
     #${SDL2_MIXER_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/src 
@@ -77,7 +77,7 @@ add_executable(${_target_name}
 target_link_libraries(${_target_name} 
     ${SDL2_LIBRARY} 
     ${SDL2MAIN_LIBRARY} 
-    ${SDL2_TTF_LIBRARY}
+    #${SDL2_TTF_LIBRARY}
     #${SDL2_IMAGE_LIBRARY}
     #${SDL2_MIXER_LIBRARY}
     )
@@ -87,14 +87,16 @@ target_link_libraries(${_target_name}
 # second, for the sdl2 libs, we need to know if we are 32 or 64 bit. 
 
 # first, the copy all bullshit i came to like 
-add_dependencies(${_target_name} ${_target_name}_datacopy)
-add_custom_target(${_target_name}_datacopy
-  COMMAND ${CMAKE_COMMAND}
-    -Dsrc_dir="${PROJECT_SOURCE_DIR}"
-    -Ddst_dir="${CMAKE_BINARY_DIR}/buildpackage/"
-    -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/update_directory.cmake"
-)
-
+option(COPY_SOURCES "Copy the source folder into the buildpackage" OFF)
+if (${COPY_SOURCES} EQUAL ON) 
+    add_dependencies(${_target_name} ${_target_name}_datacopy)
+    add_custom_target(${_target_name}_datacopy
+      COMMAND ${CMAKE_COMMAND}
+        -Dsrc_dir="${PROJECT_SOURCE_DIR}"
+        -Ddst_dir="${CMAKE_BINARY_DIR}/buildpackage/"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/update_directory.cmake"
+    )
+endif ()
 # is there a better way? i dont know. found at http://www.saoe.net/blog/778/
 if (${CMAKE_SIZEOF_VOID_P} EQUAL "8")
     set (PROJECT_ARCHITECTURE "x64")
@@ -104,15 +106,19 @@ endif ()
 
 if( WIN32 )
 
+if (NOT DEFINED SDL2_PATH)
+    set(SDL2_PATH $ENV{SDL2DIR})
+endif()
+
 # copy sdl2 stuff. uncomment what you need
 add_custom_command(TARGET ${_target_name} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${SDL2_PATH}/lib/${PROJECT_ARCHITECTURE}/"
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-add_custom_command(TARGET ${_target_name} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${SDL2_TTF_PATH}/lib/${PROJECT_ARCHITECTURE}/"
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+#add_custom_command(TARGET ${_target_name} POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_directory
+#        "${SDL2_TTF_PATH}/lib/${PROJECT_ARCHITECTURE}/"
+#        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 #add_custom_command(TARGET ${_target_name} POST_BUILD
 #    COMMAND ${CMAKE_COMMAND} -E copy_directory
 #        "${SDL2_IMAGE_PATH}/lib/${PROJECT_ARCHITECTURE}/"
